@@ -1,6 +1,5 @@
 package com.example.zilunlin.bacpack.Generic;
 
-import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +14,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.zilunlin.bacpack.Config;
+import com.example.zilunlin.bacpack.DB.UserCredentialsDBHandler;
 import com.example.zilunlin.bacpack.R;
+import com.example.zilunlin.bacpack.UserInfo.User;
 import com.example.zilunlin.bacpack.network.AppController;
 
 import org.json.JSONArray;
@@ -81,11 +82,17 @@ public class LoginActivity extends AppCompatActivity {
                         userLogin.add(user);
                     }
                     if (password.equals(userLogin.get(0).get("password").toString()) && user_id.equals(userLogin.get(0).get("id"))){
+
+                        UserCredentialsDBHandler saveLogin = new UserCredentialsDBHandler(LoginActivity.this);
+
+                        User currentSession = new User();
+                        currentSession.setId(userLogin.get(0).get("id").toString());
+                        currentSession.setName(userLogin.get(0).get("name").toString());
+                        currentSession.setPermission(userLogin.get(0).get("permissions").toString());
+                        currentSession.setType(userLogin.get(0).get("type").toString());
+                        saveLogin.saveLoginCredentials(currentSession);
+
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("user_id", userLogin.get(0).get("id"));
-                        intent.putExtra("user_name", userLogin.get(0).get("name"));
-                        intent.putExtra("user_type",userLogin.get(0).get("user_type"));
-                        intent.putExtra("user_permission", userLogin.get(0).get("permission"));
                         startActivity(intent);
 
                     }if (password.isEmpty() || user_id.isEmpty()) {

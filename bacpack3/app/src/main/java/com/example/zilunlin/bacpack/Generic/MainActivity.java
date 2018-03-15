@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -21,8 +20,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.zilunlin.bacpack.Config;
+import com.example.zilunlin.bacpack.DB.UserCredentialsDBHandler;
 import com.example.zilunlin.bacpack.R;
 import com.example.zilunlin.bacpack.RecyclerViewAdapter;
+import com.example.zilunlin.bacpack.UserInfo.User;
 import com.example.zilunlin.bacpack.network.AppController;
 import com.example.zilunlin.bacpack.network.SimpleDividerItemDecoration;
 
@@ -32,6 +33,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<HashMap<String,String>> eventList = new ArrayList<HashMap<String, String>>();
@@ -39,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerViewAdapter mAdapter;
     ProgressDialog pg;
     private String user_id, user_name,user_type,user_permission;
-    TextView emptyView;
+    UserCredentialsDBHandler mUserCredentialsDBHandler = new UserCredentialsDBHandler(this);
+    private List<User> userCredentials;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -51,16 +54,13 @@ public class MainActivity extends AppCompatActivity {
                     //Sends user to the home page
                     Toast.makeText(getApplicationContext(), "Bad internet connection...!" , Toast.LENGTH_LONG).show();
                     return true;
+
                 case R.id.navigation_dashboard:
                     //Sends user to functionalities
                     Intent toDashboard = new Intent(MainActivity.this, Dashboard.class);
-                    toDashboard.putExtra("user_id",user_id);
-                    toDashboard.putExtra("user_type",user_type);
-                    toDashboard.putExtra("user_name",user_name);
-                    toDashboard.putExtra("user_permission", user_name);
-
                     startActivity(toDashboard);
                     return true;
+
                 case R.id.navigation_notifications:
                     //Sends user to somewhere else
                     Toast.makeText(getApplicationContext(), "Bad internet connection...!" , Toast.LENGTH_LONG).show();
@@ -76,12 +76,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras!=null) {
-            user_id = getIntent().getStringExtra("user_id");
-            user_name = getIntent().getStringExtra("user_name");
-            user_type = getIntent().getStringExtra("user_type");
-            user_permission = getIntent().getStringExtra("user_permission");
+        //Gets user info into a list.
+        userCredentials = mUserCredentialsDBHandler.getUserCredentials();
+        //Checks for User's info and whether if an account is logged in.
+        if (!userCredentials.isEmpty()) {
+            user_name = mUserCredentialsDBHandler.getUserCredentials().get(0).toString();
+            user_id = mUserCredentialsDBHandler.getUserCredentials().get(1).toString();
+            user_type = mUserCredentialsDBHandler.getUserCredentials().get(2).toString();
+            user_permission = mUserCredentialsDBHandler.getUserCredentials().get(3).toString();
         }else {
             //generic user, no need for login
             user_id = "2";
