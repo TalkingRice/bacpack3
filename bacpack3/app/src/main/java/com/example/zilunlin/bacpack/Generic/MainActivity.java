@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Gets user info into a list.
+        //Gets user info into a list by fetching the database
         userCredentials = mUserCredentialsDBHandler.getUserCredentials();
         //Checks for User's info and whether if an account is logged in.
         if (!userCredentials.isEmpty()) {
